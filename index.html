@@ -1,1 +1,553 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odatlarim Pro - Ultimate Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* UI/UX: Dark & Lime Premium Glassmorphism */
+        :root {
+            --bg-dark: #090c10;
+            --panel-bg: rgba(22, 28, 38, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-lime: #a3e635;
+            --accent-glow: rgba(163, 230, 53, 0.3);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            padding: 16px;
+            padding-bottom: 100px; /* Navigatsiya uchun joy */
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header dizayni */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .header h1 span {
+            color: var(--accent-lime);
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .streak-badge {
+            background: rgba(163, 230, 53, 0.15);
+            border: 1px solid var(--accent-lime);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-lime);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Panel va Vidjetlar */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Progress Bar qismi */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .circle-progress {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .circle-progress svg {
+            width: 60px;
+            height: 60px;
+            transform: rotate(-90deg);
+        }
+
+        .circle-progress circle {
+            fill: none;
+            stroke-width: 6;
+        }
+
+        .circle-progress .bg-circle {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .circle-progress .progress-bar {
+            stroke: var(--accent-lime);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .stat-details h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .stat-details p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Odatlar Ro'yxati */
+        .habit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .habit-item.completed {
+            border-color: rgba(163, 230, 53, 0.3);
+            background: rgba(163, 230, 53, 0.03);
+        }
+
+        .habit-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .habit-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        .habit-item.completed .habit-icon-box {
+            background: rgba(163, 230, 53, 0.2);
+            color: var(--accent-lime);
+        }
+
+        .habit-details .habit-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .habit-item.completed .habit-name {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .habit-details .habit-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Chiroyli Custom Checkbox */
+        .check-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .check-btn i {
+            font-size: 12px;
+            color: transparent;
+        }
+
+        .habit-item.completed .check-btn {
+            background: var(--accent-lime);
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .habit-item.completed .check-btn i {
+            color: #000;
+        }
+
+        /* Odat Qo'shish Formasi */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-lime);
+        }
+
+        .btn-primary {
+            background: var(--accent-lime);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        /* AI Maslahatlari */
+        .ai-tip {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .ai-tip i {
+            color: var(--accent-lime);
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .ai-tip p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Pastki Navigatsiya (Tab Bar) */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .tab-item.active {
+            color: var(--accent-lime);
+        }
+
+        .tab-item i {
+            font-size: 20px;
+        }
+
+        /* Sahifalar boshqaruvi */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Odatlarim <span>Pro</span></h1>
+        <div class="streak-badge">
+            <i class="fa-solid fa-fire"></i> <span id="streak-count">5</span> Kun
+        </div>
+    </div>
+
+    <div id="page-habits" class="page active">
+        <div class="glass-panel progress-container">
+            <div class="circle-progress">
+                <svg>
+                    <circle class="bg-circle" cx="30" cy="30" r="26"></circle>
+                    <circle class="progress-bar" id="habit-progress-bar" cx="30" cy="30" r="26" stroke-dasharray="163.36" stroke-dashoffset="163.36"></circle>
+                </svg>
+                <div class="progress-text" id="progress-percentage">0%</div>
+            </div>
+            <div class="stat-details">
+                <h3>Bugungi progress</h3>
+                <p id="stat-summary">0 ta vazifa bajarildi</p>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-title">
+                <i class="fa-solid fa-list-check" style="color: var(--accent-lime);"></i> Bugungi odatlarim
+            </div>
+            <div class="habit-list" id="habit-list-container">
+                </div>
+        </div>
+
+        <div class="glass-panel ai-tip">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <div>
+                <strong style="display:block; margin-bottom:4px; font-size:15px;">AI Assistent taklifi:</strong>
+                <p id="ai-tip-text">Ajoyib start! Kunni energiya bilan boshlash uchun "Suv ichish" odatini 12:00 gacha yakunlang.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-add" class="page">
+        <div class="glass-panel">
+            <div class="panel-title"><i class="fa-solid fa-plus-circle" style="color: var(--accent-lime);"></i> Yangi odat qo'shish</div>
+            <div class="form-group">
+                <label style="font-size: 14px; color: var(--text-muted);">Odat nomi</label>
+                <input type="text" id="input-name" placeholder="Masalan: Kitob o'qish, Sport...">
+            </div>
+            <div class="form-group">
+                <label style="font-size: 14px; color: var(--text-muted);">Kategoriya</label>
+                <select id="input-category">
+                    <option value="book">📚 Kitob mutolaasi</option>
+                    <option value="water">💧 Suv balansi</option>
+                    <option value="sport">💪 Sport va Finetss</option>
+                    <option value="meditation">🧘 Ruxiy xordiq</option>
+                    <option value="work">💼 Ish va Fokus</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label style="font-size: 14px; color: var(--text-muted);">Bajarish vaqti</label>
+                <input type="time" id="input-time" value="08:00">
+            </div>
+            <button class="btn-primary" onclick="createNewHabit()" style="margin-top: 10px;">Ro'yxatga qo'shish</button>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="switchPage('habits', this)">
+            <i class="fa-solid fa-house"></i> Odatlarim
+        </div>
+        <div class="tab-item" onclick="switchPage('add', this)">
+            <i class="fa-solid fa-circle-plus"></i> Odat qo'shish
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp sozlamalari
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Standart boshlang'ich ma'lumotlar
+        let habits = [
+            { id: 1, name: "Suv Ichish", category: "water", time: "08:00", completed: false },
+            { id: 2, name: "Sport mashg'uloti", category: "sport", time: "17:30", completed: false },
+            { id: 3, name: "Kitob o'qish", category: "book", time: "21:00", completed: false }
+        ];
+
+        // Kategoriya ikonkalari xaritasi
+        const categoryIcons = {
+            book: "fa-book-open",
+            water: "fa-droplet",
+            sport: "fa-dumbbell",
+            meditation: "fa-spa",
+            work: "fa-briefcase"
+        };
+
+        // Sahifalarni almashtirish funksiyasi
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            element.classList.add('active');
+            
+            // Telegram haptic effekti (Vibratsiya)
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Odatlar ro'yxatini ekranga chizish
+        function renderHabits() {
+            const container = document.getElementById('habit-list-container');
+            container.innerHTML = "";
+
+            habits.forEach(habit => {
+                const item = document.createElement('div');
+                item.className = `habit-item ${habit.completed ? 'completed' : ''}`;
+                
+                const iconClass = categoryIcons[habit.category] || "fa-check";
+
+                item.innerHTML = `
+                    <div class="habit-info">
+                        <div class="habit-icon-box">
+                            <i class="fa-solid ${iconClass}"></i>
+                        </div>
+                        <div class="habit-details">
+                            <div class="habit-name">${habit.name}</div>
+                            <div class="habit-time"><i class="fa-regular fa-clock"></i> ${habit.time}</div>
+                        </div>
+                    </div>
+                    <button class="check-btn" onclick="toggleHabit(${habit.id})">
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+
+            updateProgress();
+        }
+
+        // Odat holatini o'zgartirish (Check/Uncheck)
+        function toggleHabit(id) {
+            habits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            
+            renderHabits();
+        }
+
+        // Progress va foizni hisoblash
+        function updateProgress() {
+            const total = habits.length;
+            const completedCount = habits.filter(h => h.completed).length;
+            const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+
+            // Matnlarni yangilash
+            document.getElementById('progress-percentage').innerText = `${percentage}%`;
+            document.getElementById('stat-summary').innerText = `${total} tadan ${completedCount} tasi bajarildi`;
+
+            // SVG aylanani yangilash
+            const circle = document.getElementById('habit-progress-bar');
+            const circumference = 2 * Math.PI * 26; // 163.36
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            // Dinamik AI Maslahatlari
+            const aiText = document.getElementById('ai-tip-text');
+            if (percentage === 100) {
+                aiText.innerText = "Daxshatli natija! Bugungi barcha odatlaringiz mukammal bajarildi. Chempionlik sari olg'a! 🏆";
+            } else if (percentage >= 50) {
+                aiText.innerText = "Yarmidan o'tdingiz. Qolgan vazifalarni ham vaqtida bajarish intizomingizni yanada mustahkamlaydi.";
+            } else {
+                aiText.innerText = "Kichik qadamlar katta natijaga olib keladi. Ro'yxatdagi keyingi vazifaga diqqat qarating.";
+            }
+        }
+
+        // Yangi odat yaratish
+        function createNewHabit() {
+            const name = document.getElementById('input-name').value.trim();
+            const category = document.getElementById('input-category').value;
+            const time = document.getElementById('input-time').value;
+
+            if (!name) {
+                alert("Iltimos, odat nomini kiriting!");
+                return;
+            }
+
+            const newHabit = {
+                id: Date.now(),
+                name: name,
+                category: category,
+                time: time,
+                completed: false
+            };
+
+            habits.push(newHabit);
+            
+            // Inputlarni tozalash
+            document.getElementById('input-name').value = "";
+            
+            // Asosiy sahifaga qaytarish
+            switchPage('habits', document.querySelectorAll('.tab-item')[0]);
+            renderHabits();
+        }
+
+        // Ilk yuklanishda ishga tushirish
+        renderHabits();
+    </script>
+</body>
+</html>
